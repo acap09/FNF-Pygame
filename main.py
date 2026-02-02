@@ -19,8 +19,9 @@ while running:
             running = False
 
     screen.fill((0, 0, 0))
+    screen.blit(pygame.transform.scale(pygame.image.load(str(Path(filename='karipap.png'))), (200, 150)),
+                (0, 0))
     pygame.display.update()
-    finalTime = pygame.time.get_ticks()
 
 pygame.display.quit()
 pygame.quit()

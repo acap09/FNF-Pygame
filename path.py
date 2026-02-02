@@ -22,16 +22,13 @@ from pathlib import Path as PathLib
 
 class Path:
     def __new__(cls, filename, mods_folder="mods"):
-        # Base game path (inside exe or source folder)
         if getattr(sys, "_MEIPASS", False):
-            base = PathLib(sys._MEIPASS)
+            base = PathLib(sys._MEIPASS) / "source"
         else:
-            base = PathLib("..")
+            base = PathLib("source")
 
-        # Mods folder always next to exe/script
         mods_path = PathLib(os.path.dirname(sys.argv[0])) / mods_folder
 
-        # Check if mod exists
         mod_file = mods_path / filename
         base_file = base / filename
 
