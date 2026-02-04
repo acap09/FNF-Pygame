@@ -21,7 +21,7 @@ def update(dataType, name, value):
 updateRegistry = update
 
 def get(dataType, name):
-    if dataType not in v.registry or name not in v.registry[datType]:
+    if dataType not in v.registry or name not in v.registry[dataType]:
         raise KeyError(f"{dataType}/{name} does not exist!")
     return v.registry[dataType][name]
 getRegistry = get
