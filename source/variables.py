@@ -11,3 +11,12 @@ else:
 
 mod_path = base_path / 'mods'
 source_path = base_path / 'source'
+
+running = True
+
+curState = 'init'
+
+screen = None
+clock = None
+
+registry = {}
