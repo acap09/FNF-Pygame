@@ -31,7 +31,7 @@ class UserInterfaceDimension2:
                  arg4: int = None):
         datatypes = [arg1, arg2, arg3, arg4]
         args = [arg1, arg2, arg3, arg4]
-        maxArgs = sum(datatype is not None for datatype in datatypes)
+        #maxArgs = sum(datatype is not None for datatype in datatypes)
         for n, val in enumerate(args):
             if isinstance(val, UDim) and n < 2:
                 datatypes[n] = 'UDim'

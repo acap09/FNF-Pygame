@@ -1,5 +1,4 @@
 import pygame
-import source.registry as reg
 import source.variables as v
 from source.classes.BaseInstance import BaseInstance
 

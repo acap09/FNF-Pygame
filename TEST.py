@@ -1,2 +1,2 @@
-# Test / Dummy script file
+# Test / Dummy script file.
 print('TEST.py > Success!')

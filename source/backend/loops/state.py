@@ -11,7 +11,7 @@ def findStateFile(name):
     path = v.source_path / 'states' / name
     if path.exists():
         return path
-    raise FileNotFoundError(f'File {path} not found in source/states/')
+    raise FileNotFoundError(f'File {path} not found in source/states/!')
 #curState = importModule(findStateFile('init'))
 
 def changeState(newState: str):

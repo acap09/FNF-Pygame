@@ -26,7 +26,7 @@ clock: pygame.time.Clock = None
 sampleRate = pygame.mixer.get_init()[0]
 
 aspectRatio = 16/9
-invAspectRatio = 1/aspectRatio
+invAspectRatio: float = 1/aspectRatio
 
 registry = {}
 

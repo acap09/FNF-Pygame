@@ -5,7 +5,7 @@ def screenClear():
     v.screen.fill((0,0,0))
 
 def render(**kwargs):
-    v.mainSurface.fill((0,10,0))
+    v.mainSurface.fill((0,0,0))
     dim = v.mainSurface.get_size()
     screenDim = v.screen.get_size()
     for dataType, objects in v.registry.items():

@@ -1,4 +1,4 @@
-import pygame, psutil, math
+import pygame, math
 from source import variables as v
 
 surface = pygame.Surface((800, 600), pygame.SRCALPHA, 32)

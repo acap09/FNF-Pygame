@@ -1,6 +1,5 @@
 import pygame
 import random
-import source.registry as reg
 import source.variables as v
 import source.functions.file_funcs as ff
 from source.classes.base.Tween import Tween

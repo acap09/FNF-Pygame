@@ -1,4 +1,4 @@
-import source.registry as reg
+#import source.registry as reg
 import source.variables as v
 
 def update():

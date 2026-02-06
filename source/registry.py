@@ -14,7 +14,7 @@ removeRegistry = remove
 
 def update(dataType, name, value):
     #if dataType not in v.registry or name not in v.registry[dataType]:
-        #raise KeyError(f"{dataType}/{name} does not exist!")
+        #raise KeyError(f'{dataType}/{name} does not exist!')
     if dataType not in v.registry:
         raise KeyError(f"{dataType} does not exist!")
     v.registry[dataType][name] = value

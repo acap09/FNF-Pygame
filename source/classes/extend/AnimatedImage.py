@@ -1,4 +1,4 @@
-import source.classes.base.Sprite as Sprite
+from source.classes.base.Sprite import BaseSprite
 import source.functions.file_funcs as ff
 from path import Path
 import pygame
@@ -10,7 +10,7 @@ class Animation:
         self.frame = 0
         self.numFrames = 0
 
-class AnimatedImage(Sprite):
+class AnimatedImage(BaseSprite):
     def __init__(self, name, imagePath):
         super().__init__(name, dataType = 'AnimatedImage')
         self.filePath = Path(imagePath)

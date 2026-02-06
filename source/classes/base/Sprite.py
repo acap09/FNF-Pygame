@@ -35,4 +35,4 @@ class BaseSprite(pygame.sprite.Sprite):
 
     def set(self, value):
         return setattr(self, value)
-sprite = BaseSprite
+Sprite = BaseSprite

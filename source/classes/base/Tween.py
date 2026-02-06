@@ -17,18 +17,18 @@ def cusGetAttr(obj, name):
 
 class Tween(BaseInstance):
     tween_types = [
-        "linear",
-        "easeInQuad", "easeOutQuad", "easeInOutQuad",
-        "easeInCubic", "easeOutCubic", "easeInOutCubic",
-        "easeInQuart", "easeOutQuart", "easeInOutQuart",
-        "easeInQuint", "easeOutQuint", "easeInOutQuint",
-        "easeInSine", "easeOutSine", "easeInOutSine",
-        "easeInExpo", "easeOutExpo", "easeInOutExpo",
-        "easeInCirc", "easeOutCirc", "easeInOutCirc",
-        "easeInElastic", "easeOutElastic", "easeInOutElastic",
-        "easeInBack", "easeOutBack", "easeInOutBack",
-        "easeInBounce", "easeOutBounce", "easeInOutBounce",
-        "easeInPoly", "easeOutPoly", "easeInOutPoly"
+        'linear',
+        'easeInQuad', 'easeOutQuad', 'easeInOutQuad',
+        'easeInCubic', 'easeOutCubic', 'easeInOutCubic',
+        'easeInQuart', 'easeOutQuart', 'easeInOutQuart',
+        'easeInQuint', 'easeOutQuint', 'easeInOutQuint',
+        'easeInSine', 'easeOutSine', 'easeInOutSine',
+        'easeInExpo', 'easeOutExpo', 'easeInOutExpo',
+        'easeInCirc', 'easeOutCirc', 'easeInOutCirc',
+        'easeInElastic', 'easeOutElastic', 'easeInOutElastic',
+        'easeInBack', 'easeOutBack', 'easeInOutBack',
+        'easeInBounce', 'easeOutBounce', 'easeInOutBounce',
+        'easeInPoly', 'easeOutPoly', 'easeInOutPoly'
     ]
 
     def __init__(self, name: str, obj: object, valueName: str, toValue: float | int, duration: float, tweenType:

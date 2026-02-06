@@ -1,4 +1,4 @@
-import pygame
+import pygame#_ce
 
 class Vector2(pygame.math.Vector2):
     def __init__(self, a1, a2):

@@ -20,9 +20,9 @@ class Font():
         newFont = pygame.font.Font(self.fontPath, self.size)
         for attr in ['bold', 'italic', 'underline', 'strikethrough', 'align', 'point_size']:
             setattr(newFont, attr, getattr(self.font, attr))
-        print('----------------------------\n', self.font)
+        #print('----------------------------\n', self.font)
         self.font = newFont
-        print(self.font, '\n------------------')
+        #print(self.font, '\n------------------')
     #def renewSurfaces(self):
     #    for idx, txt in self.txtSurfaces.items():
     #        args = txt['surfaceArgs']

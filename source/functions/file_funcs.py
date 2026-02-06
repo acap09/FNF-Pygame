@@ -4,20 +4,20 @@ import xmltodict as xtd
 import json
 #print(importlib.__file__)
 
-def getPathIfExists(path: str):
+def get_path_if_exists(path: str):
     filePath = Path(path)
     if filePath.exists():
         return filePath
     return None
-gpie = getPathIfExists
-def sensitiveGetPathIfExists(path: str):
-    filePath = getPathIfExists(path)
+gpie = get_path_if_exists
+def sensitive_get_path_if_exists(path: str):
+    filePath = get_path_if_exists(path)
     if filePath is None:
         raise FileNotFoundError(f'File {path} not found')
     return filePath
-sgpie = sensitiveGetPathIfExists
+sgpie = sensitive_get_path_if_exists
 
-def importModule(path: str, custom_name: str = None):
+def import_module(path: str, custom_name: str = None):
     filePath = Path(path)
     if custom_name is None:
         custom_name = filePath.stem
@@ -28,8 +28,9 @@ def importModule(path: str, custom_name: str = None):
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+importModule = import_module #backwards compatibility
 
-def readFile(path: str, keep_open = False):
+def read_file(path: str, keep_open = False):
     filePath = sgpie(path)
     file = open(filePath, 'r', encoding='utf-8')
     try:
@@ -40,10 +41,11 @@ def readFile(path: str, keep_open = False):
         if not keep_open:
             file.close()
     return content, None
+readFile = read_file
 
-def parseTxt(path: str):
+def parse_txt(path: str):
     filePath = gpie(path)
-    content = readFile(path)[0]
+    content = read_file(path)[0]
     if filePath.suffix == '.xml':
         content = xtd.parse(content)
     elif filePath.suffix == '.json':
@@ -52,3 +54,4 @@ def parseTxt(path: str):
         print(f'{path} is not .xml or .json, so content is not parsed.')
         return None
     return content
+parseTxt = parse_txt
