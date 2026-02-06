@@ -1,6 +1,7 @@
 import os
 import sys
 from pathlib import Path as PathLib
+import source.variables as v
 
 #class Path:
 #    def __new__(cls, relativePath):
@@ -22,26 +23,22 @@ from pathlib import Path as PathLib
 
 class Path:
     def __new__(cls, filename, mods_folder="mods"):
-        if getattr(sys, "_MEIPASS", False):
-            base = PathLib(sys._MEIPASS) / "source"
-        else:
-            base = PathLib("source")
-
-        mods_path = PathLib(os.path.dirname(sys.argv[0])) / mods_folder
-
-        mod_file = mods_path / filename
-        base_file = base / filename
-
+        mod_file = v.mod_path / filename
+        base_file = v.source_path / filename
         if mod_file.exists():
-            chosen = mod_file
+            file = mod_file
         elif base_file.exists():
-            chosen = base_file
+            file = base_file
         else:
             raise FileNotFoundError(filename)
 
         self = super().__new__(cls)
-        self.path = chosen
+        self.path = file
         return self
 
     def __str__(self):
         return str(self.path)
+    g = __str__
+
+    def __repr__(self):
+        return f'<Path {self.path}>'

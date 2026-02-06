@@ -1,2 +1,0 @@
-def update(dt):
-    pass

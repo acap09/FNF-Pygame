@@ -1,17 +1,40 @@
 import pygame
-from source import variables
-from source.functions.importfile import importModule
+from source import variables as v
+import source.registry as reg
+from source.functions.file_funcs import importModule
+oldState = None
+curState = None
+
 
 def findStateFile(name):
     name = str(name) + '.py'
-    path = variables.source_path / 'states' / 'default' / name
+    path = v.source_path / 'states' / name
     if path.exists():
         return path
-    raise FileNotFoundError(f'File {name} not found in source/states/default')
+    raise FileNotFoundError(f'File {path} not found in source/states/')
+#curState = importModule(findStateFile('init'))
 
-def changeState(newState):
+def changeState(newState: str):
+    global oldState, curState
     filePath = None
     try:
         filePath = findStateFile(newState)
     except FileNotFoundError:
         return f'State could not be changed to {newState}'
+
+    if hasattr(curState, 'onDestroy') and callable(curState.onDestroy):
+        curState.onDestroy(newState)
+        reg.remove('States', curState.__name__)
+    oldState = curState
+    curState = importModule(filePath)
+    reg.add('States', curState.__name__, curState)
+
+changeState('init')
+
+
+def update():
+    if hasattr(curState, 'updatePre') and callable(curState.updatePre):
+        curState.updatePre()
+
+    if hasattr(curState, 'updatePost') and callable(curState.updatePost):
+        curState.updatePost()

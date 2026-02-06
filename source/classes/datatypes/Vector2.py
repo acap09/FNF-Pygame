@@ -1,0 +1,8 @@
+import pygame
+
+class Vector2(pygame.math.Vector2):
+    def __init__(self, a1, a2):
+        super().__init__(a1, a2)
+
+    def tuple(self):
+        return (self.x, self.y)

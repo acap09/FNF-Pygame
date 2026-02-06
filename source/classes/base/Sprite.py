@@ -1,12 +1,38 @@
-class Sprite:
-    def __init__(self, name: str, **kwargs):
-        self.name = name
-        self.dataType = None
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+import source.registry as reg
+from source.classes.BaseInstance import BaseInstance
+from source.classes.datatypes.UDims import UDim2
+import pygame
+
+#class Sprite(BaseInstance):
+#    def __init__(self, name: str, dataType: str = None, **kwargs):
+#        super().__init__(name, dataType)
+#        for key, value in kwargs.items():
+#            setattr(self, key, value)
+#        if dataType is not None:
+#            reg.add(dataType, self.name, self)
+#
+#    def __repr__(self):
+#        return f'<Sprite {self.name}>'
+#
+#    def get(self, value, fallback = None):
+#        return getattr(self, value, fallback)
+#
+#    def set(self, attr, value):
+#        return setattr(self, attr, value)
+
+class BaseSprite(pygame.sprite.Sprite):
+    def __init__(self, position: UDim2 = UDim2(), size: UDim2 = UDim2()):
+        super().__init__()
+
+        self.pos = position
+        self.size = size
+
     def __repr__(self):
-        return f'<Sprite {self.name}>'
+        return f'<BaseSprite {self.name}>'
+
     def get(self, value, fallback = None):
         return getattr(self, value, fallback)
+
     def set(self, value):
         return setattr(self, value)
+sprite = BaseSprite
