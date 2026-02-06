@@ -1,0 +1,1 @@
+pyinstaller --onefile --add-data "source;source" --add-data "path.py;." --hidden-import=pytweening --name "Pie Engine" main.py
