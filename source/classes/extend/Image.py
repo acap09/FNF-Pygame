@@ -1,15 +1,24 @@
 from source.classes.base.Sprite import BaseSprite
 from source.classes.datatypes.UDims import UDim2
 from path import Path
+import source.variables as v
 import pygame
 
 class Image(BaseSprite):
-    def __init__(self, name, imagePath, position = UDim2(), namehint = ''):
-        self.filePath = Path(imagePath)
-        if not self.filePath.exists():
-            raise FileNotFoundError(self.filePath)
-        self.img = pygame.image.load(self.filePath, namehint).convert_alpha()
-        super().__init__(position, UDim2(00, self.img.get_width(), 0, self.img.get_height()))
+    def __init__(self, name, imagePath, position = None, namehint = ''):
+        self.filePath = Path(imagePath).path
+        super().__init__(name, position)
+        self.originalImg = pygame.image.load(self.filePath)
+        self.img = self.originalImg.copy()
+        self.originalDim = self.img.get_size()
+        self.originalSize = UDim2(self.originalDim[0]/v.mainSurfaceSize[0], 0, self.originalDim[1]/v.mainSurfaceSize[
+            1], 0)
+        self.size = self.originalSize
 
-    #def render(self, Surface):
-    #    Surface.blit(self.img)
+    def resize(self, *args):
+        self.size = UDim2(*args)
+        self.img = pygame.transform.scale(self.originalImg, self.size.absPos(tupleify=True))
+
+
+    def windowResize(self, newDim):
+        self.img = pygame.transform.scale(self.originalImg, self.size.absPos(tupleify=True))

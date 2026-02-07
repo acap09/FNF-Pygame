@@ -1,11 +1,14 @@
 import pygame
 import source.variables as v
 from source.classes.BaseInstance import BaseInstance
+from path import Path
 
 class Sound(pygame.mixer.Sound, BaseInstance):
-    def __init__(self, filename, bpm):
+    def __init__(self, filename, bpm = 100):
+        if isinstance(filename, Path):
+            filename = filename.path
         pygame.mixer.Sound.__init__(self, filename)
-        BaseInstance.__init__(self, filename, 'Sound')
+        BaseInstance.__init__(self, str(filename), 'Sound')
 
         self.bpm = int(bpm) or 100
         self.secondsPerBeat = 60 / self.bpm
@@ -20,6 +23,7 @@ class Sound(pygame.mixer.Sound, BaseInstance):
         self.stepsCount = 0
 
         self._playStartTime = 0
+        self.duration = self.get_length()
         self._trimSound: pygame.mixer.Sound | None = None
         self._array = pygame.sndarray.array(self)
 
@@ -32,6 +36,7 @@ class Sound(pygame.mixer.Sound, BaseInstance):
         self.stepHit = True
         self._playStartTime = v.elapsed-pos_sec
         self._last = {'beat': self._playStartTime, 'step': self._playStartTime}
+        self.duration = ((self.get_length()*1000 if maxtime_ms == -1 else maxtime_ms)-pos_ms)/1000
 
         playFully = False
         if maxtime_ms == -1:
@@ -79,6 +84,14 @@ class Sound(pygame.mixer.Sound, BaseInstance):
     def get_sound_position(self):
         return v.elapsed-self._playStartTime
 
+    def step_hit(self, steps):
+        pass
+    def beat_hit(self, beats):
+        pass
+
+    def sound_finished(self):
+        pass
+
     def update(self):
         self.beatHit = False
         self.stepHit = False
@@ -88,9 +101,15 @@ class Sound(pygame.mixer.Sound, BaseInstance):
             if self.playing:
                 self.beatHit = True
                 self.beatsCount += 1
+                self.beat_hit(self.beatsCount)
 
         while v.elapsed - self._last['step'] >= self.secondsPerStep:
             self._last['step'] += self.secondsPerStep
             if self.playing:
                 self.stepHit = True
                 self.stepsCount += 1
+                self.step_hit(self.stepsCount)
+
+        if v.elapsed > self._playStartTime+self.duration:
+            self.playing = False
+            self.sound_finished()

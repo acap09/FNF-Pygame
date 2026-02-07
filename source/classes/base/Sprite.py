@@ -21,11 +21,13 @@ import pygame
 #        return setattr(self, attr, value)
 
 class BaseSprite(pygame.sprite.Sprite):
-    def __init__(self, position: UDim2 = UDim2(), size: UDim2 = UDim2()):
+    def __init__(self, name: str, position: UDim2 = None, size: UDim2 = None):
         super().__init__()
 
-        self.pos = position
-        self.size = size
+        self.position = position or UDim2()
+        self.size = size or UDim2()
+        self.visible = True
+        reg.add('WindowResizeDependencies', name, self)
 
     def __repr__(self):
         return f'<BaseSprite {self.name}>'
@@ -35,4 +37,7 @@ class BaseSprite(pygame.sprite.Sprite):
 
     def set(self, value):
         return setattr(self, value)
+
+    def windowResize(self, newDim):
+        pass
 Sprite = BaseSprite

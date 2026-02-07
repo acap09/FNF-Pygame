@@ -6,6 +6,8 @@ def add(dataType, name, value):
 addRegistry = add
 
 def remove(dataType, name):
+    if name in v.registry['WindowResizeDependencies']:
+        del v.registry['WindowResizeDependencies'][name]
     try:
         del v.registry[dataType][name]
     except KeyError:

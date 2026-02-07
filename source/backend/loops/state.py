@@ -2,6 +2,8 @@ import pygame
 from source import variables as v
 import source.registry as reg
 from source.functions.file_funcs import importModule
+from path import Path
+import warnings
 oldState = None
 curState = None
 
@@ -15,11 +17,13 @@ def findStateFile(name):
 #curState = importModule(findStateFile('init'))
 
 def changeState(newState: str):
+    print('hi!!!')
     global oldState, curState
     filePath = None
     try:
-        filePath = findStateFile(newState)
+        filePath = Path(f'states/{newState}.py').path
     except FileNotFoundError:
+        warnings.warn(f'State could not be changed to {newState}')
         return f'State could not be changed to {newState}'
 
     if hasattr(curState, 'onDestroy') and callable(curState.onDestroy):
