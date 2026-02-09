@@ -5,8 +5,11 @@ import shutil
 pygame.init()
 from source import variables as v
 
+icon = pygame.image.load(v.source_path/'placeholder_icon.png')
+pygame.display.set_icon(icon)
+
 v.screen = pygame.display.set_mode((1000, 1000*(9/16)), pygame.RESIZABLE)
-pygame.display.set_caption('Friday Night Funkin\'')
+pygame.display.set_caption('Friday Night Funkin\': Pie Engine')
 v.mainSurface = pygame.Surface(v.screen.get_size(), pygame.SRCALPHA, 32)
 v.mainSurfaceSize = v.mainSurface.get_size()
 v.clock = pygame.time.Clock()
@@ -33,6 +36,7 @@ while v.running:
 
             #v.mainSurface = pygame.Surface(dim, pygame.SRCALPHA, 32)
             #print(v.mainSurface.get_size())
+            print('RESIZED')
             v.mainSurface = pygame.transform.scale(v.mainSurface, dim)
             v.mainSurfaceSize = v.mainSurface.get_size()
             if 'WindowResizeDependencies' in v.registry:
@@ -44,6 +48,7 @@ while v.running:
                 v.screenshot = True
 
     fpsDisp, daSurface = fps_render.update(process, font, fpsDisp)
+    state.updatePre()
     backend_stuff.update()
     state.update()
 

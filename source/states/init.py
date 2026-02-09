@@ -38,10 +38,12 @@ surfaces = {}
 filePath = cpath('audio/music/freakyMenu.ogg')
 filePathS = str(filePath)
 Sound(filePath, 102)
-print(v.registry)
+#print(v.registry)
 v.registry['Sound'][filePathS].play(loops = -1)
 v.registry['Sound'][filePathS].set_volume(0)
 freakyTween = Tween('freadein', v.registry['Sound'][filePathS], 'volume', 0.7, 0.6, 'linear')
+freakyTween.play()
+v.musicName = filePathS
 
 newground = Image('newground', 'images/newgrounds_logo.png')
 newground.resize(0, 50, 0, 15)
@@ -57,11 +59,12 @@ def updatePre():
     if v.registry['Sound'][filePathS].beatHit:
         print(f'!!!{v.elapsed}: Beat!!!')
         print(v.registry)'''
-    pass
+    if pygame.key.get_just_pressed()[pygame.K_RETURN]:
+        state.changeState('title_screen')
 
 def renderFont(text: str, position: UDim2 | str = None,antialias: bool = True, color = (255, 255, 255), name: str =
 None, background=None, wrap_length = 0):
-    print('treat')
+    #print('treat')
     font.render(text, position, antialias, color, name, background, wrap_length)
     #font2.render(text, position, antialias, color, name, background, wrap_length)
 def changeText(name, text):
@@ -69,12 +72,14 @@ def changeText(name, text):
     #font2.change_text(name, text)
 
 randomPick = introTexts[random.randint(0, len(introTexts)-1)]
-def step_hit(self, step):
+def step_hit(step):
     global font
-    print(step)
+    #print(step)
+    if v.curState != 'init':
+        return
     match step+5:
         case 10:
-            print("YYYY")
+            #print("YYYY")
             renderFont('PIE ENGINE\n ', v.ALIGN_CC, name='introTxt')
         case 16:
             changeText('introTxt', 'PIE ENGINE\nWITH PYGAME-CE')
@@ -97,10 +102,9 @@ def step_hit(self, step):
         case 62:
             changeText('introTxt', 'FRIDAY\nNIGHT\nFUNKIN\'')
         case 69:
-            font.unrender('introTxt')
             state.changeState('title_screen')
 
-v.registry['Sound'][filePathS].step_hit = method(step_hit, v.registry['Sound'][filePathS])
+v.registry['Sound'][filePathS].step_hit.connect(step_hit)
 
 
 
@@ -118,6 +122,13 @@ def render(dim: tuple):
     #if v.registry['Sound'][filePathS].stepsCount == 33:
     #    pygame.image.save(v.mainSurface, Path('./test.png'))
 
+destroyed = False
 def onDestroy(newState):
-    #reg.remove('States', curFile.stem)
-    pass
+    global destroyed
+    if destroyed:
+        return
+    destroyed = True
+    global newground, freakyTween
+    newground = None
+    freakyTween = None
+    font.unrender('introTxt')

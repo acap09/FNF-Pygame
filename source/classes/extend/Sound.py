@@ -1,6 +1,7 @@
 import pygame
 import source.variables as v
 from source.classes.BaseInstance import BaseInstance
+from source.classes.base.ScriptSignal import ScriptSignal
 from path import Path
 
 class Sound(pygame.mixer.Sound, BaseInstance):
@@ -21,6 +22,10 @@ class Sound(pygame.mixer.Sound, BaseInstance):
 
         self.beatsCount = 0
         self.stepsCount = 0
+
+        self.step_hit = ScriptSignal()
+        self.beat_hit = ScriptSignal()
+        self.sound_finished = ScriptSignal()
 
         self._playStartTime = 0
         self.duration = self.get_length()
@@ -84,13 +89,34 @@ class Sound(pygame.mixer.Sound, BaseInstance):
     def get_sound_position(self):
         return v.elapsed-self._playStartTime
 
-    def step_hit(self, steps):
-        pass
-    def beat_hit(self, beats):
-        pass
+    def _step_hit(self, steps):
+        self.step_hit.fire(steps)
+    def _beat_hit(self, beats):
+        self.beat_hit.fire(beats)
+    def _sound_finished(self):
+        self.sound_finished.fire()
 
-    def sound_finished(self):
-        pass
+    def calculate_anim_fps(self, frameIdx: int | float, stepIdx: int | float = None, beatIdx: int | float = None):
+        if stepIdx is None and beatIdx is None:
+            raise ValueError('Neither Step Index nor Beat Index is specified!')
+        if stepIdx is not None and beatIdx is not None:
+            raise ValueError('You cannot specify both Step Index and Beat Index!')
+        if not isinstance(stepIdx, (float, int)):
+            raise TypeError('Step Index must be of type int!')
+        if not isinstance(beatIdx, (float, int)):
+            raise TypeError('Beat Index must be of type int!')
+
+        if (stepIdx or beatIdx) <= 0:
+            raise ValueError('Step Index or Beat Index must be positive!')
+        if frameIdx <= 0:
+            raise ValueError('Frame Index must be positive!')
+
+        fps = int(stepIdx) * self.secondsPerStep if stepIdx is not None else int(beatIdx) * self.secondsPerBeat
+        fps = frameIdx / fps
+        return fps
+
+        #  frameIndex/(steporbeatIndex*secondpersteporbeat)
+
 
     def update(self):
         self.beatHit = False
@@ -101,15 +127,15 @@ class Sound(pygame.mixer.Sound, BaseInstance):
             if self.playing:
                 self.beatHit = True
                 self.beatsCount += 1
-                self.beat_hit(self.beatsCount)
+                self._beat_hit(self.beatsCount)
 
         while v.elapsed - self._last['step'] >= self.secondsPerStep:
             self._last['step'] += self.secondsPerStep
             if self.playing:
                 self.stepHit = True
                 self.stepsCount += 1
-                self.step_hit(self.stepsCount)
+                self._step_hit(self.stepsCount)
 
         if v.elapsed > self._playStartTime+self.duration:
             self.playing = False
-            self.sound_finished()
+            self._sound_finished()

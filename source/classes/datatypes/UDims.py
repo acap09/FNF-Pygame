@@ -13,15 +13,18 @@ class UserInterfaceDimension:
     def tuple(self):
         return (self.scale, self.offset)
 
-    def absPos(self, axis: str = 'x', Surface: pygame.Surface = v.mainSurface):
+    def absPos(self, axis: str = 'x', Surface: pygame.Surface = None):
         #Surface = Surface if isinstance(Surface, pygame.Surface) else v.mainSurface
         #dim = (Surface.get_width(), Surface.get_height())
-        Surface = v.mainSurface
         dim = v.mainSurfaceSize
+        #print(dim)
         if isinstance(Surface, pygame.Surface):
-            dim = Surface.get_size()
+            dim = (Surface.get_width(), Surface.get_height())
+        #print(Surface, dim)
         #print('v.mainSurface', dim)
         axes = {'x': 0, 'y':1}
+        #print(self.scale * dim[axes[axis]] + self.offset)
+        #print()
         if axis not in axes:
             raise ValueError(f'Axis {axis} not supported.')
         return self.scale * dim[axes[axis]] + self.offset
@@ -44,7 +47,7 @@ class UserInterfaceDimension2:
             if not isinstance(arg2, pygame.Surface):
                 raise TypeError(f'UDim2 alignment requires a Surface to be provided. Instead, we received '
                                 f'{arg2 if arg2 is not None else 'nothing'}.')
-            print(arg2.get_size(), arg1)
+            #print(arg2.get_size(), arg1)
             conv = [UDim(), UDim()]
             for dim, align_dim in enumerate([arg1[2], arg1[3]]):
                 if align_dim == 'L': #left
@@ -52,10 +55,10 @@ class UserInterfaceDimension2:
                 elif align_dim == 'C':
                     conv[dim] = UDim(0.5, -int(arg2.get_size()[dim]/2))
                 elif align_dim == 'R':
-                    conv[dim] = UDim(0.5, -arg2.get_size()[dim])
+                    conv[dim] = UDim(1, -arg2.get_size()[dim])
             self.x = conv[0]
             self.y = conv[1]
-            print(self, self.absPos())
+            #print(self, self.absPos())
             return
 
 
@@ -92,8 +95,11 @@ class UserInterfaceDimension2:
     def tuple(self):
         return (self.x, self.y)
 
-    def absPos(self, Surface: pygame.Surface = v.mainSurface, tupleify: bool = False):
-        Surface = Surface if isinstance(Surface, pygame.Surface) else v.mainSurface
+    def scaleTuple(self):
+        return (self.x.scale, self.y.scale)
+
+    def absPos(self, Surface: pygame.Surface = None, tupleify: bool = False):
+        #Surface = Surface if isinstance(Surface, pygame.Surface) else v.mainSurface
 
         ret = Vector2(self.x.absPos('x', Surface), self.y.absPos('y', Surface))
         if tupleify:

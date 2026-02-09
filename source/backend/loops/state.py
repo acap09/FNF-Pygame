@@ -17,7 +17,7 @@ def findStateFile(name):
 #curState = importModule(findStateFile('init'))
 
 def changeState(newState: str):
-    print('hi!!!')
+    #print('hi!!!')
     global oldState, curState
     filePath = None
     try:
@@ -31,14 +31,18 @@ def changeState(newState: str):
         reg.remove('States', curState.__name__)
     oldState = curState
     curState = importModule(filePath)
+    v.curState = newState
     reg.add('States', curState.__name__, curState)
 
 changeState('init')
 
-
-def update():
+def updatePre():
     if hasattr(curState, 'updatePre') and callable(curState.updatePre):
         curState.updatePre()
+
+def update():
+    if hasattr(curState, 'update') and callable(curState.update):
+        curState.update()
 
     if hasattr(curState, 'updatePost') and callable(curState.updatePost):
         curState.updatePost()

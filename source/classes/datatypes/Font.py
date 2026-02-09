@@ -24,7 +24,7 @@ class Font():
         self.renew_font()
         reg.add('Font', name or str(self.fontPath), self)
         reg.add('WindowResizeDependencies', name or str(self.fontPath), self)
-        print('hhhhhhhhhhhhhhhh')
+        #print('hhhhhhhhhhhhhhhh')
 
     def renew(self):
         self.renew_font()
@@ -80,7 +80,7 @@ class Font():
             'visible': self.surfaces[name]['visible']
         }
         self.surfaces[name]['position'] = UDim2(args['position'], self.surfaces[name]['surface'])
-        print('hhhhiiii')
+        #print('hhhhiiii')
 
     def windowResize(self, newDim: tuple):
         self.point_size = self.size.absPos()
@@ -89,7 +89,8 @@ class Font():
 
     def unrender(self, name: str):
         if name not in self.surfaces:
-            raise KeyError(f'{name} does not exist as text surfaces!')
+            warnings.warn(f'{name} does not exist as a text surface!')
+            return
         self.surfaces.pop(name)
 
 
@@ -114,7 +115,7 @@ class Font():
             'visible': True
         }
         self.surfaces[nam]['position'] = UDim2(position, self.surfaces[nam]['surface'])
-        print('treatarewt')
+        #print('treatarewt')
 
     def size(self, text):
         return self.font.size(text)

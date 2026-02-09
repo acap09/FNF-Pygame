@@ -17,8 +17,8 @@ class Image(BaseSprite):
 
     def resize(self, *args):
         self.size = UDim2(*args)
-        self.img = pygame.transform.scale(self.originalImg, self.size.absPos(tupleify=True))
+        self.img = pygame.transform.smoothscale(self.originalImg, self.size.absPos(tupleify=True))
 
 
     def windowResize(self, newDim):
-        self.img = pygame.transform.scale(self.originalImg, self.size.absPos(tupleify=True))
+        self.img = pygame.transform.smoothscale(self.originalImg, self.size.absPos(tupleify=True))

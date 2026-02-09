@@ -8,11 +8,15 @@ from source.classes.BaseInstance import BaseInstance
 def cusSetAttr(obj, name, value):
     if isinstance(obj, pygame.mixer.Sound) and name == 'volume':
         return obj.set_volume(value)
+    elif isinstance(obj, pygame.Surface) and name == 'alpha':
+        return obj.set_alpha(value)
     return setattr(obj, name, value)
 
 def cusGetAttr(obj, name):
     if isinstance(obj, pygame.mixer.Sound) and name == 'volume':
         return obj.get_volume()
+    elif isinstance(obj, pygame.Surface) and name == 'alpha':
+        return obj.get_alpha()
     return getattr(obj, name)
 
 class Tween(BaseInstance):
@@ -30,6 +34,11 @@ class Tween(BaseInstance):
         'easeInBounce', 'easeOutBounce', 'easeInOutBounce',
         'easeInPoly', 'easeOutPoly', 'easeInOutPoly'
     ]
+    PLAYING = '##PLAYING##'
+    COMPLETED = '##COMPLETED##'
+    PAUSED = '##PAUSE##'
+    STOPPED = '##STOPPED##'
+    IDLE = '##IDLE##'
 
     def __init__(self, name: str, obj: object, valueName: str, toValue: float | int, duration: float, tweenType:
     str, onCompleted: typing.Callable[[], None] = lambda: None):
@@ -43,25 +52,60 @@ class Tween(BaseInstance):
         self.valueName = valueName
         self.baseValue = cusGetAttr(obj, valueName)
         self.toValue = toValue
-        self.startTime = v.clock.get_time()/1000 if v.clock is not None else 0
-        self.endTime = self.startTime+duration
+        self.startTime = 0
+        self.duration = duration
+        self.endTime = self.duration
         self.tweenType = tweenType
         #self.easingType = easingType
         self.onCompleted = onCompleted
+        self.playbackState = self.IDLE
         reg.add('Tween', self.name, self)
 
+        self._pauseTime = 0
+
+    def play(self):
+        if self.playbackState == self.IDLE:
+            self.startTime = v.elapsed
+            self.baseValue = cusGetAttr(self.spriteRef, self.valueName)
+            reg.add('Tween', self.name, self) # maybe the tween finished and we wanted it to run again
+        elif self.playbackState == self.PAUSED:
+            self.startTime += v.elapsed-self._pauseTime
+
+        self.endTime = self.startTime + self.duration
+        self.playbackState = self.PLAYING
+        self.completed = False
+    resume = play
+
+    def pause(self):
+        if self.playbackState == self.PLAYING:
+            self._pauseTime = v.elapsed
+            self.playbackState = self.PAUSED
+
+    def stop(self):
+        if self.playbackState in [self.PLAYING, self.PAUSED]:
+            self.playbackState = self.STOPPED
+            self.completed = True
+            if callable(self.onCompleted):
+                self.onCompleted()
+
     def update(self):
-        currentTime = v.elapsed
-        t = (currentTime - self.startTime) / (self.endTime - self.startTime)
-        t = min(max(t, 0), 1)
+        if self.playbackState == self.PLAYING:
+            currentTime = v.elapsed
+            t = (currentTime - self.startTime) / (self.endTime - self.startTime)
+            t = min(max(t, 0), 1)
 
-        start = self.baseValue
-        end = self.toValue
-        newValue = start + (end - start) * getattr(pytweening, self.tweenType)(t)
-        #setattr(self.spriteRef, self.valueName, newValue)
-        if isinstance(self.spriteRef, pygame.mixer.Sound):
-            cusSetAttr(self.spriteRef, 'volume', newValue)
+            #print(self.name, t, currentTime)
+            #print(self.startTime, self.endTime)
 
-        if currentTime >= self.endTime and callable(self.onCompleted):
-            self.onCompleted()
-            reg.remove('Tween', self.name)
+            start = self.baseValue
+            end = self.toValue
+            newValue = start + (end - start) * getattr(pytweening, self.tweenType)(t)
+            #setattr(self.spriteRef, self.valueName, newValue)
+            #if isinstance(self.spriteRef, pygame.mixer.Sound):
+            cusSetAttr(self.spriteRef, self.valueName, newValue)
+
+            if t >= 1 and callable(self.onCompleted):
+                self.completed = True
+                self.playbackState = self.COMPLETED
+                self.onCompleted()
+                reg.remove('Tween', self.name)

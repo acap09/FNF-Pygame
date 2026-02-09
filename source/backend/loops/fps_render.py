@@ -13,7 +13,7 @@ def update(process, font, fpsDisp):
     if memory % 1 == 0:
         memory = int(memory)
     colour = (255, 255, 255)
-    if fps < 30:
+    if fpsDisp < 30:
         colour = (255, 0, 0)
     fpsTxt = font.render('FPS: ' + str(fpsDisp) + ' \nMemory usage: ' + str(round(memory, 2)) + ' MB', True, colour)
     #memoryTxt = font.render('Memory usage: ' + str(round(memory, 2)) + ' MB', True, (255, 255, 255))
