@@ -33,10 +33,6 @@ clock: pygame.time.Clock = None
 sampleRate = pygame.mixer.get_init()[0]
 musicName: str = ''
 
-aspectRatio = 16/9
-invAspectRatio: float = 1/aspectRatio
-fpsLimiter = 60
-
 registry = {}
 
 elapsed = 0

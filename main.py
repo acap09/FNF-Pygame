@@ -4,6 +4,7 @@ import shutil
 
 pygame.init()
 from source import variables as v
+from source import ClientPrefs as cp
 
 icon = pygame.image.load(v.source_path/'placeholder_icon.png')
 pygame.display.set_icon(icon)
@@ -15,6 +16,7 @@ v.mainSurfaceSize = v.mainSurface.get_size()
 v.clock = pygame.time.Clock()
 
 from source.backend.loops import fps_render, render, backend_stuff, state
+
 
 
 font = pygame.font.Font(None, 20)
@@ -32,7 +34,7 @@ while v.running:
         elif event.type == pygame.WINDOWSIZECHANGED:
             dim = v.screen.get_size()
             #print(dim)
-            dim = (int(min(dim[0], int(dim[1]*v.aspectRatio))), int(min(dim[1], int(dim[0]*v.invAspectRatio))))
+            dim = (int(min(dim[0], int(dim[1]*cp.aspectRatio))), int(min(dim[1], int(dim[0]*cp.invAspectRatio))))
 
             #v.mainSurface = pygame.Surface(dim, pygame.SRCALPHA, 32)
             #print(v.mainSurface.get_size())
@@ -53,10 +55,12 @@ while v.running:
     state.update()
 
     #v.screen.fill((0, 0, 0))
-    render.screenClear()
+    render.screen_clear()
     render.render(fps=[daSurface, (2, 2)])
+    state.render()
+    render.update_disp()
 
-    v.dt = v.clock.tick(0 if v.fpsLimiter == -1 else v.fpsLimiter)/1000
+    v.dt = v.clock.tick(0 if cp.fpsLimiter == -1 else cp.fpsLimiter)/1000
 
 pygame.display.quit()
 pygame.quit()

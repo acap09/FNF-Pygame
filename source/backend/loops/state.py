@@ -8,7 +8,7 @@ oldState = None
 curState = None
 
 
-def findStateFile(name):
+def find_state_file(name):
     name = str(name) + '.py'
     path = v.source_path / 'states' / name
     if path.exists():
@@ -16,7 +16,7 @@ def findStateFile(name):
     raise FileNotFoundError(f'File {path} not found in source/states/!')
 #curState = importModule(findStateFile('init'))
 
-def changeState(newState: str):
+def change_state(newState: str):
     #print('hi!!!')
     global oldState, curState
     filePath = None
@@ -34,7 +34,18 @@ def changeState(newState: str):
     v.curState = newState
     reg.add('States', curState.__name__, curState)
 
-changeState('init')
+transSurf = pygame.Surface((800, 600), pygame.SRCALPHA)
+fade = pygame.image.load(Path('images/transition/fade.png').path)
+def change_state_transition(newState: str):
+    global transSurf
+    transSurf.fill((0, 0, 0, 0))
+    transSurf = pygame.transform.scale(transSurf, v.mainSurfaceSize)
+    pygame.draw.rect(transSurf, (0, 0, 0), pygame.Rect(0, 0, transSurf.get_width(), int(transSurf.get_height()*0.75)))
+    transSurf.set_alpha(255)
+    transSurf.blit(pygame.transform.scale(fade, (transSurf.get_width(), int(transSurf.get_height()*0.25))),
+                   (0, int(transSurf.get_height()*0.75)))
+
+change_state('init')
 
 def updatePre():
     if hasattr(curState, 'updatePre') and callable(curState.updatePre):
@@ -46,3 +57,6 @@ def update():
 
     if hasattr(curState, 'updatePost') and callable(curState.updatePost):
         curState.updatePost()
+
+def render():
+    v.mainSurface.blit(transSurf, (0, 0))

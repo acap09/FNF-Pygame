@@ -57,20 +57,21 @@ class Tween(BaseInstance):
         self.endTime = self.duration
         self.tweenType = tweenType
         #self.easingType = easingType
-        self.onCompleted = onCompleted
+        self.on_complete = onCompleted
         self.playbackState = self.IDLE
         reg.add('Tween', self.name, self)
 
         self._pauseTime = 0
 
     def play(self):
-        if self.playbackState == self.IDLE:
+        if self.playbackState == self.PAUSED:
+            self.startTime += v.elapsed-self._pauseTime
+        else:
             self.startTime = v.elapsed
             self.baseValue = cusGetAttr(self.spriteRef, self.valueName)
-            reg.add('Tween', self.name, self) # maybe the tween finished and we wanted it to run again
-        elif self.playbackState == self.PAUSED:
-            self.startTime += v.elapsed-self._pauseTime
+            reg.add('Tween', self.name, self)  # maybe the tween finished and we wanted it to run again
 
+        #self.baseValue = cusGetAttr(self.obj, self.valueName)
         self.endTime = self.startTime + self.duration
         self.playbackState = self.PLAYING
         self.completed = False
@@ -81,12 +82,12 @@ class Tween(BaseInstance):
             self._pauseTime = v.elapsed
             self.playbackState = self.PAUSED
 
-    def stop(self):
+    def stop(self, call_complete: bool = False):
         if self.playbackState in [self.PLAYING, self.PAUSED]:
             self.playbackState = self.STOPPED
             self.completed = True
-            if callable(self.onCompleted):
-                self.onCompleted()
+            if call_complete and callable(self.on_complete):
+                self.on_complete()
 
     def update(self):
         if self.playbackState == self.PLAYING:
@@ -104,8 +105,9 @@ class Tween(BaseInstance):
             #if isinstance(self.spriteRef, pygame.mixer.Sound):
             cusSetAttr(self.spriteRef, self.valueName, newValue)
 
-            if t >= 1 and callable(self.onCompleted):
+            if t >= 1:
                 self.completed = True
                 self.playbackState = self.COMPLETED
-                self.onCompleted()
+                if callable(self.on_complete):
+                    self.on_complete()
                 reg.remove('Tween', self.name)

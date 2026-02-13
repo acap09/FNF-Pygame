@@ -1,13 +1,13 @@
 import pygame
 import source.variables as v
-from source.classes.datatypes.Font import Font
+from source.classes.datatypes.Fonts import Font, BitmapFont
 from source.classes.extend.Sound import Sound
 from path import Path
 from datetime import datetime
 
 shutter = Sound(Path('audio/sound/shutter.ogg'))
 
-def screenClear():
+def screen_clear():
     v.screen.fill((0,0,0))
 
 def render(**kwargs):
@@ -16,7 +16,7 @@ def render(**kwargs):
     screenDim = v.screen.get_size()
     for dataType, objects in v.registry.items():
         for name, obj in objects.copy().items():
-            if hasattr(obj, 'render') and callable(obj.render) and not isinstance(obj, Font):
+            if hasattr(obj, 'render') and callable(obj.render) and not isinstance(obj, (Font, BitmapFont)):
                 obj.render(dim=dim)
     v.screen.blit(v.mainSurface, (int((screenDim[0]-dim[0])/2), int((screenDim[1]-dim[1])/2)))
     for key, value in kwargs.items():
@@ -30,4 +30,7 @@ def render(**kwargs):
         shutter.play()
     v.screenshot = False
 
+    #pygame.display.update()
+
+def update_disp():
     pygame.display.update()

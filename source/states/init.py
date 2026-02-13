@@ -3,17 +3,17 @@ from nturl2path import pathname2url
 import pygame
 import random
 import source.variables as v
+import source.ClientPrefs as cp
 import source.functions.file_funcs as ff
 #import source.functions.invert as invert
 from source.classes.base.Tween import Tween
 from source.classes.extend.Sound import Sound
 from source.classes.datatypes.UDims import UDim2
-from source.classes.datatypes.Font import Font
+from source.classes.datatypes.Fonts import Font, BitmapFont
 from source.classes.extend.Image import Image
 import source.backend.loops.state as state
 from path import Path as cpath
 from pathlib import Path
-from types import MethodType as method
 introTexts = ff.parseTxt(v.source_path / 'data' / 'introTxt.json')
 for n, txt in enumerate(introTexts.copy()):
     thing = txt.split('\n')
@@ -26,8 +26,8 @@ curFile = Path(__file__).resolve()
 #reg.add('States', curFile.stem, curFile)
 
 #font = pygame.font.Font(v.source_path / 'fonts' / 'fnf.ttf', 20)
-pat = cpath('fonts/phantommuff_full.ttf').path
-font = Font('intro', pat, (20/563, 0))
+pat = cpath('fonts/boldtest.json').path
+font = BitmapFont('intr', pat, (25/563, 0))
 font.align = pygame.FONT_CENTER
 
 #pat2 = cpath('fonts/phantommuff_empty.ttf').path
@@ -59,19 +59,20 @@ def updatePre():
     if v.registry['Sound'][filePathS].beatHit:
         print(f'!!!{v.elapsed}: Beat!!!')
         print(v.registry)'''
-    if pygame.key.get_just_pressed()[pygame.K_RETURN]:
-        state.changeState('title_screen')
+    if pygame.key.get_just_pressed()[cp.kb.enter]:
+        state.change_state('title_screen')
 
-def renderFont(text: str, position: UDim2 | str = None,antialias: bool = True, color = (255, 255, 255), name: str =
-None, background=None, wrap_length = 0):
+#def renderFont(text: str, position: UDim2 | str = None,antialias: bool = True, color = (255, 255, 255), name: str =
+#None, background=None, wrap_length = 0):
     #print('treat')
-    font.render(text, position, antialias, color, name, background, wrap_length)
+    #font.render(text, position, antialias, color, name, background, wrap_length)
     #font2.render(text, position, antialias, color, name, background, wrap_length)
 def changeText(name, text):
     font.change_text(name ,text)
     #font2.change_text(name, text)
 
 randomPick = introTexts[random.randint(0, len(introTexts)-1)]
+#randomPick = introTexts[10]
 def step_hit(step):
     global font
     #print(step)
@@ -80,21 +81,21 @@ def step_hit(step):
     match step+5:
         case 10:
             #print("YYYY")
-            renderFont('PIE ENGINE\n ', v.ALIGN_CC, name='introTxt')
+            font.render('PIE ENGINE\n ', v.ALIGN_CC, align='CENTER', name='introTxt')
         case 16:
             changeText('introTxt', 'PIE ENGINE\nWITH PYGAME-CE')
         case 22:
-            changeText('introTxt', 'NOT ASSOCIATED WITH\n \n \n \n ')
+            changeText('introTxt', 'NOT ASSOCIATED WITH\n \n \n ')
         case 33:
             newground.visible = True
-            changeText('introTxt', 'NOT ASSOCIATED WITH\nNEWGROUNDS\n \n \n ')
+            changeText('introTxt', 'NOT ASSOCIATED WITH\nNEWGROUNDS\n \n ')
             newground.resize(269/1409, 0, 261/793, 0)
             newground.position = UDim2(0.5, -int(newground.img.get_width()/2), 0.5, 5)
         case 38:
-            changeText('introTxt', randomPick[0].upper()+' ')
+            changeText('introTxt', randomPick[0]+' ')
             newground.visible = False
         case 48:
-            changeText('introTxt', (randomPick[0]+randomPick[1]).upper())
+            changeText('introTxt', (randomPick[0]+randomPick[1]))
         case 52:
             changeText('introTxt', 'FRIDAY\n \n ')
         case 57:
@@ -102,14 +103,10 @@ def step_hit(step):
         case 62:
             changeText('introTxt', 'FRIDAY\nNIGHT\nFUNKIN\'')
         case 69:
-            state.changeState('title_screen')
+            state.change_state('title_screen')
 
 v.registry['Sound'][filePathS].step_hit.connect(step_hit)
 
-
-
-def updatePost():
-    pass
 
 def render(dim: tuple):
     def rend(surface, pos):
