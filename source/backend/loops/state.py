@@ -2,6 +2,9 @@ import pygame
 from source import variables as v
 import source.registry as reg
 from source.functions.file_funcs import importModule
+from source.classes.extend.Image import Image
+from source.classes.datatypes.UDims import UDim2
+from source.classes.base.Tween import Tween
 from path import Path
 import warnings
 oldState = None
@@ -33,17 +36,36 @@ def change_state(newState: str):
     curState = importModule(filePath)
     v.curState = newState
     reg.add('States', curState.__name__, curState)
+cs = change_state
 
-transSurf = pygame.Surface((800, 600), pygame.SRCALPHA)
-fade = pygame.image.load(Path('images/transition/fade.png').path)
-def change_state_transition(newState: str):
-    global transSurf
-    transSurf.fill((0, 0, 0, 0))
-    transSurf = pygame.transform.scale(transSurf, v.mainSurfaceSize)
-    pygame.draw.rect(transSurf, (0, 0, 0), pygame.Rect(0, 0, transSurf.get_width(), int(transSurf.get_height()*0.75)))
-    transSurf.set_alpha(255)
-    transSurf.blit(pygame.transform.scale(fade, (transSurf.get_width(), int(transSurf.get_height()*0.25))),
-                   (0, int(transSurf.get_height()*0.75)))
+#transSurf = pygame.Surface(v.mainSurfaceSize, pygame.SRCALPHA)
+transition = Image('transState', 'images/transition/fadebig.png')
+transition.visible = False
+transTween = Tween('transitionState', transition, 'position', UDim2(0, 0, 0, 0), 1, 'easeOutCubic')
+def change_state_transition1(newState: str, skipTrans2: bool = False):
+    transition.visible = True
+    transition.resize(None, UDim2(1002/1000, 0, 844/562.5, 0))
+    transTween.stop()
+    transition.position = UDim2(0, 0, -1, 0)
+    transition.flip(False, False)
+    #print('are you okay')
+    transTween.play()
+    transTween.on_complete_args = [newState, skipTrans2]
+    transTween.on_complete = change_state_transition2
+change_state_transition = change_state_transition1
+cst = change_state_transition1
+
+def change_state_transition2(newState: str, skip_me: bool = False):
+    global transTween
+    change_state(newState)
+    if skip_me:
+        transition.visible = False
+        return
+    transTween = Tween('transitionStateIn', transition, 'position', UDim2(0, 0, 1, 0), 1, 'easeOutCubic')
+    transition.position = UDim2(0, 0, -0.5, 0)
+    transition.flip(False, True)
+    transTween.play()
+    transTween.on_complete = lambda: None
 
 change_state('init')
 
@@ -54,9 +76,14 @@ def updatePre():
 def update():
     if hasattr(curState, 'update') and callable(curState.update):
         curState.update()
+    transition.update_size()
 
     if hasattr(curState, 'updatePost') and callable(curState.updatePost):
         curState.updatePost()
 
+def windowResize(dim):
+    pass
+
 def render():
-    v.mainSurface.blit(transSurf, (0, 0))
+    if transition.visible:
+        v.mainSurface.blit(transition.img, transition.position.absPos(tupleify=True))

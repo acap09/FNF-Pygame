@@ -46,7 +46,7 @@ freakyTween.play()
 v.musicName = filePathS
 
 newground = Image('newground', 'images/newgrounds_logo.png')
-newground.resize(0, 50, 0, 15)
+newground.resize(None, 0, 50, 0, 15)
 newground.visible = False
 
 texts = [None, None]
@@ -89,7 +89,7 @@ def step_hit(step):
         case 33:
             newground.visible = True
             changeText('introTxt', 'NOT ASSOCIATED WITH\nNEWGROUNDS\n \n ')
-            newground.resize(269/1409, 0, 261/793, 0)
+            newground.resize(None, 269/1409, 0, 261/793, 0)
             newground.position = UDim2(0.5, -int(newground.img.get_width()/2), 0.5, 5)
         case 38:
             changeText('introTxt', randomPick[0]+' ')

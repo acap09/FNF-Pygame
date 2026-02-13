@@ -1,6 +1,8 @@
 from source.classes.base.Tween import Tween
 from source.classes.extend.AnimatedImage import AnimatedImage
+from source.classes.extend.Sound import Sound
 from source.classes.datatypes.UDims import UDim2
+from path import Path
 import source.variables as v
 import source.ClientPrefs as cp
 import pygame
@@ -35,7 +37,11 @@ titleEnter.play_anim('hover')
 titleEnter.scaleSize = UDim2(0.8, 0, 0.8, 0)
 titleEnter.position = UDim2(0.1, 0, 0.85, 0)
 
+confirmMenu = Sound(Path('audio/sound/confirmMenu.ogg'), 100)
+
 def beat_hit(beat):
+    if v.curState != 'title_screen':
+        return
     test.stop_anim(False)
     bump.play_anim('bump')
     if beat % 2 == 0:
@@ -49,12 +55,14 @@ def complete2():
     pass
 
 def complete():
-    blank.set_alpha(0)
+    '''blank.set_alpha(0)
     blank.fill((0, 0, 0))
     twen.toValue = 255
     twen.duration = 1
     twen.on_complete = complete2
-    twen.play()
+    twen.play()'''
+    state.change_state_transition('main_menu')
+    #print('testrqeeqwrewqerr')
 
 
 def updatePre():
@@ -65,6 +73,8 @@ def updatePre():
         twen.on_complete = complete
         blank.set_alpha(255)
         twen.play()
+        confirmMenu.stop()
+        confirmMenu.play()
 
 def render(dim):
 
@@ -74,3 +84,9 @@ def render(dim):
     v.mainSurface.blit(bump.img, bump.position.absPos(tupleify=True))
     v.mainSurface.blit(titleEnter.img, titleEnter.position.absPos(tupleify = True))
     v.mainSurface.blit(lblank, (0, 0))
+
+def onDestroy(newState = None):
+    global test, bump, titleEnter
+    del test
+    del bump
+    del titleEnter

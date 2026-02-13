@@ -4,6 +4,7 @@ import source.registry as reg
 import typing
 import pygame
 from source.classes.BaseInstance import BaseInstance
+from source.classes.datatypes.UDims import UDim, UDim2
 
 def cusSetAttr(obj, name, value):
     if isinstance(obj, pygame.mixer.Sound) and name == 'volume':
@@ -40,12 +41,17 @@ class Tween(BaseInstance):
     STOPPED = '##STOPPED##'
     IDLE = '##IDLE##'
 
-    def __init__(self, name: str, obj: object, valueName: str, toValue: float | int, duration: float, tweenType:
-    str, onCompleted: typing.Callable[[], None] = lambda: None):
+    def __init__(self, name: str, obj: object, valueName: str, toValue: float | int | UDim | UDim2, duration: float,
+    tweenType:
+    str, onCompleted: typing.Callable[..., None] = lambda: None, on_complete_args: list | dict = None):
         if not tweenType in self.tween_types:
             raise ValueError(f'{tweenType} is not a valid tween type!')
         if duration <= 0:
             raise ValueError(f'{duration} must be above 0!')
+        if on_complete_args is None:
+            on_complete_args = []
+        elif not isinstance(on_complete_args, (list, dict)):
+            on_complete_args = [on_complete_args]
 
         super().__init__(name or getattr(obj, 'name', 'GenericTween'), 'Tween')
         self.spriteRef = obj
@@ -58,6 +64,7 @@ class Tween(BaseInstance):
         self.tweenType = tweenType
         #self.easingType = easingType
         self.on_complete = onCompleted
+        self.on_complete_args = on_complete_args
         self.playbackState = self.IDLE
         reg.add('Tween', self.name, self)
 
@@ -87,20 +94,51 @@ class Tween(BaseInstance):
             self.playbackState = self.STOPPED
             self.completed = True
             if call_complete and callable(self.on_complete):
-                self.on_complete()
+                self._on_complete_dont_use()
+
+    def _on_complete_dont_use(self, do_not_call = None): # since most IDEs have suggestion thingies, the argument name
+    # `do_not_call` would appear, allowing for the user to be reminded of this function
+        if isinstance(self.on_complete_args, list):
+            self.on_complete(*self.on_complete_args)
+        elif isinstance(self.on_complete_args, dict):
+            self.on_complete(**self.on_complete_args)
+        else:
+            self.on_complete()
+
 
     def update(self):
         if self.playbackState == self.PLAYING:
             currentTime = v.elapsed
             t = (currentTime - self.startTime) / (self.endTime - self.startTime)
             t = min(max(t, 0), 1)
+            t = getattr(pytweening, self.tweenType)(t)
 
             #print(self.name, t, currentTime)
             #print(self.startTime, self.endTime)
 
             start = self.baseValue
             end = self.toValue
-            newValue = start + (end - start) * getattr(pytweening, self.tweenType)(t)
+            #newValue = start + (end - start) * getattr(pytweening, self.tweenType)(t)
+            if isinstance(self.baseValue, UDim2):
+                '''newValue = {
+                    'x': {
+                        'scale': self.baseValue.x.scale,
+                        'offset': self.baseValue.x.offset
+                    },
+                    'y': {
+                        'scale': self.baseValue.y.scale,
+                        'offset': self.baseValue.y.offset
+                    }
+                }'''
+                newValue = UDim2(
+                    start.x.scale + (end.x.scale - start.x.scale) * t,
+                    start.x.offset + (end.x.offset - start.x.offset) * t,
+                    start.y.scale + (end.y.scale - start.y.scale) * t,
+                    start.y.offset + (end.y.offset - start.y.offset) * t
+                )
+            else:
+                newValue = start + (end - start) * t
+
             #setattr(self.spriteRef, self.valueName, newValue)
             #if isinstance(self.spriteRef, pygame.mixer.Sound):
             cusSetAttr(self.spriteRef, self.valueName, newValue)
@@ -109,5 +147,5 @@ class Tween(BaseInstance):
                 self.completed = True
                 self.playbackState = self.COMPLETED
                 if callable(self.on_complete):
-                    self.on_complete()
+                    self._on_complete_dont_use()
                 reg.remove('Tween', self.name)

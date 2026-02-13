@@ -45,8 +45,9 @@ while v.running:
                 for idx, val in v.registry['WindowResizeDependencies'].items():
                     if hasattr(val, 'windowResize') and callable(val.windowResize):
                         val.windowResize(dim)
+            state.windowResize(dim)
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_F11:
+            if event.key == pygame.K_F12:
                 v.screenshot = True
 
     fpsDisp, daSurface = fps_render.update(process, font, fpsDisp)
@@ -56,9 +57,9 @@ while v.running:
 
     #v.screen.fill((0, 0, 0))
     render.screen_clear()
-    render.render(fps=[daSurface, (2, 2)])
+    render.render()
     state.render()
-    render.update_disp()
+    render.update_disp(daSurface)
 
     v.dt = v.clock.tick(0 if cp.fpsLimiter == -1 else cp.fpsLimiter)/1000
 

@@ -13,13 +13,15 @@ class UserInterfaceDimension:
     def tuple(self):
         return (self.scale, self.offset)
 
-    def absPos(self, axis: str = 'x', Surface: pygame.Surface = None):
+    def absPos(self, axis: str = 'x', Surface: pygame.Surface | pygame.Rect = None):
         #Surface = Surface if isinstance(Surface, pygame.Surface) else v.mainSurface
         #dim = (Surface.get_width(), Surface.get_height())
         dim = v.mainSurfaceSize
         #print(dim)
         if isinstance(Surface, pygame.Surface):
             dim = (Surface.get_width(), Surface.get_height())
+        elif isinstance(Surface, pygame.Rect):
+            dim = (Surface.width, Surface.height)
         #print(Surface, dim)
         #print('v.mainSurface', dim)
         axes = {'x': 0, 'y':1}
@@ -31,6 +33,15 @@ class UserInterfaceDimension:
 
     def __repr__(self):
         return f'<UserInterfaceDimension s{self.scale} o{self.offset}>'
+
+    def __add__(self, other):
+        if isinstance(other, UserInterfaceDimension):
+            return UserInterfaceDimension(self.scale + other.scale, self.offset + other.offset)
+        raise TypeError(f'Cannot add {other} to {self}')
+    def __sub__(self, other):
+        if isinstance(other, UserInterfaceDimension):
+            return UserInterfaceDimension(self.scale - other.scale, self.offset - other.offset)
+        raise TypeError(f'Cannot subtract {other} to {self}')
 UDim = UserInterfaceDimension
 #print(type(UDim(0, 0)))
 
@@ -98,7 +109,7 @@ class UserInterfaceDimension2:
     def scaleTuple(self):
         return (self.x.scale, self.y.scale)
 
-    def absPos(self, Surface: pygame.Surface = None, tupleify: bool = False):
+    def absPos(self, Surface: pygame.Surface | pygame.Rect = None, tupleify: bool = False):
         #Surface = Surface if isinstance(Surface, pygame.Surface) else v.mainSurface
 
         ret = Vector2(self.x.absPos('x', Surface), self.y.absPos('y', Surface))
@@ -111,4 +122,13 @@ class UserInterfaceDimension2:
 
     def __repr__(self):
         return f'<UserInterfaceDimension2 x(s{self.x.scale} o{self.x.offset}) y(s{self.y.scale} o{self.y.offset})>'
+
+    def __add__(self, other):
+        if isinstance(other, UserInterfaceDimension2):
+            return UserInterfaceDimension2(self.x + other.x, self.y + other.y)
+        raise TypeError(f'Cannot add {other} to {self}')
+    def __sub__(self, other):
+        if isinstance(other, UserInterfaceDimension2):
+            return UserInterfaceDimension2(self.x - other.x, self.y - other.y)
+        raise TypeError(f'Cannot subtract {other} to {self}')
 UDim2 = UserInterfaceDimension2
