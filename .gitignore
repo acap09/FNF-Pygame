@@ -1,0 +1,7 @@
+.idea/
+source/
+screenshots/
+mods/
+dist/
+build/
+.venv/
