@@ -1,17 +1,23 @@
+import warnings
+
 import pygame
 import source.variables as v
 from source.classes.datatypes.UDims import UDim, UDim2
 from source.classes.base.Sprite import BaseSprite
+from source.classes.datatypes.Vector2 import Vector2
+
 
 class Internal:
     def __init__(self):
         self.lerp_mult = 1
         self.inv_lerp_mult = 1
+        self.zoom = 1
 
 class CameraGroup(pygame.sprite.LayeredUpdates):
     LOCKON = '##LOCKON##'
     LERP = '##LERP##'
-    def __init__(self, position: UDim2 | tuple = None, size: UDim2 | tuple = None, view_rect: pygame.Rect = pygame.Rect(0, 0, 100, 100)):
+    def __init__(self, position: UDim2 | tuple = None, size: UDim2 | tuple = None, view_rect: pygame.Rect =
+    pygame.Rect(0, 0, 100, 100), zoom: float = 1):
         super().__init__()
         if position is None:
             position = UDim2()
@@ -22,7 +28,7 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
         else:
             raise TypeError('Position must be UDim2 or tuple!')
         if size is None:
-            size = UDim2()
+            size = UDim2(1, 0, 1, 0)
         elif isinstance(size, UDim2):
             pass
         elif isinstance(size, tuple):
@@ -30,42 +36,80 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
         else:
             raise TypeError('Size must be UDim2 or tuple!')
 
+        self._internal = Internal()
         self.viewport = view_rect
+        self.cam = Vector2(self.viewport.x, self.viewport.y)
+        self.zoom = zoom
         self.position = position
         self.size = size
         self.disp = pygame.Surface(self.viewport.size, pygame.SRCALPHA)
         self.target: pygame.Surface | BaseSprite | None = None
         self.targetStyle = self.LERP
-        self._internal = Internal()
 
     @property
     def x(self):
-        return self.viewport.x
+        return self.cam.x
     @property
     def y(self):
-        return self.viewport.y
+        return self.cam.y
+    @property
+    def zoom_level(self):
+        return self._internal.zoom
+    @zoom_level.setter
+    def zoom_level(self, level):
+        self._internal.zoom = level
+        self._update_zoom_sprites()
+    @property
+    def zoom(self):
+        return self._internal.zoom
+    @zoom.setter
+    def zoom(self, value):
+        self._internal.zoom = value
+        self._update_zoom_sprites()
+    @property
+    def sprites(self):
+        return super().sprites()
+
+    def update_sprite_zoom(self, sprite: BaseSprite) -> pygame.Surface | None:
+        if sprite not in self.sprites:
+            warnings.warn(f'{sprite} does not exist in the group!')
+        if hasattr(sprite, 'img') and isinstance(sprite.img, pygame.Surface):
+            sprite.zoom_img = pygame.transform.smoothscale_by(sprite.img, self.zoom)
+            return sprite.zoom_img
+
+    def _update_zoom_sprites(self):
+        for sprite in self.sprites:
+            self.update_sprite_zoom(sprite)
+
+    def add(self, *sprites, **kwargs):
+        super().add(*sprites, **kwargs)
+        for sprite in sprites:
+            self.update_sprite_zoom(sprite)
 
 
-    def draw(self, scale_disp: bool = True) -> list[pygame.Rect|pygame.FRect]:
+    def draw(self, scale_disp: bool = True) -> tuple[pygame.Surface, list[pygame.Rect|pygame.FRect]]:
         self.disp = pygame.Surface(self.viewport.size, pygame.SRCALPHA)
-        self.disp.fill((0, 10, 0))
+        self.disp.fill((0, 0, 0))
         rects = []
         #print('sprites', self.sprites())
-        for sprite in self.sprites():
+        for sprite in self.sprites:
             rect = sprite.get_rect(self.viewport)
-            pos_x = (rect.x - self.x) * sprite.scroll.x
-            pos_y = (rect.y - self.y) * sprite.scroll.y
-            rects.append(self.disp.blit(sprite.img, (pos_x, pos_y)))
+            #print(rect)
+            pos_x = (rect.x - self.x) * sprite.scroll.x * self.zoom
+            pos_y = (rect.y - self.y) * sprite.scroll.y * self.zoom
+            rects.append(self.disp.blit(sprite.zoom_img, (pos_x, pos_y)))
         if scale_disp:
             self.disp = pygame.transform.smoothscale(self.disp, self.size.absPos(tupleify=True))
-        return rects
+        return (self.disp, rects)
 
     def align(self, sprite: BaseSprite, _align: str):
         if _align not in v.ALIGNMENTS_2D:
             raise ValueError('Alignment is not of proper syntax!') # what the hell is this wording bro, it sucks
         rect = sprite.get_rect(self.viewport)
+        #print(rect)
         pos = {0:{'sc': 0.0, 'of': 0},1:{'sc': 0.0, 'of': 0}}
         for n, dim in enumerate([_align[2], _align[3]]):
+            #print(n, dim)
             if dim == 'L':
                 pos[n]['sc'] = 0
                 pos[n]['of'] = 0
@@ -75,18 +119,23 @@ class CameraGroup(pygame.sprite.LayeredUpdates):
             elif dim == 'R':
                 pos[n]['sc'] = 1
                 pos[n]['of'] = -(rect.width if n == 0 else rect.height)
+        #print(pos)
         sprite.position = UDim2(pos[0]['sc'], pos[0]['of'], pos[1]['sc'], pos[1]['of'])
 
 
 
     def update(self, *args, **kwargs):
+        print(self.target)
         if isinstance(self.target, BaseSprite):
+            print(self.cam)
             if self.targetStyle == self.LERP:
-                self.viewport.centerx += (self.target.get_rect(self.viewport).centerx - self.viewport.centerx) * self.lerp_mult
-                self.viewport.centery += (self.target.get_rect(self.viewport).centery - self.viewport.centery) * self.lerp_mult
+                self.cam.x += ((self.target.get_rect(self.viewport).centerx - self.viewport.centerx - self.cam.x) *
+                               self.lerp_mult)
+                self.cam.y += ((self.target.get_rect(self.viewport).centery - self.viewport.centery - self.cam.y) *
+                               self.lerp_mult)
             elif self.targetStyle == self.LOCKON:
-                self.viewport.centerx = self.target.get_rect(self.viewport).centerx
-                self.viewport.centery = self.target.get_rect(self.viewport).centery
+                self.cam.x = self.target.get_rect(self.viewport).centerx - self.viewport.centerx
+                self.cam.y = self.target.get_rect(self.viewport).centery - self.viewport.centery
 
 
 

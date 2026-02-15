@@ -28,7 +28,7 @@ class BaseSprite(pygame.sprite.Sprite):
         self.name = name
         self.position = position or UDim2()
         self.size = size or UDim2()
-        self.scroll = scroll or Vector2()
+        self.scroll = scroll or Vector2(1, 1)
         self.visible = True
         reg.add('WindowResizeDependencies', name, self)
 

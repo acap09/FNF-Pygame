@@ -41,7 +41,7 @@ cs = change_state
 #transSurf = pygame.Surface(v.mainSurfaceSize, pygame.SRCALPHA)
 transition = Image('transState', 'images/transition/fadebig.png')
 transition.visible = False
-transTween = Tween('transitionState', transition, 'position', UDim2(0, 0, 0, 0), 1, 'easeOutCubic')
+transTween = Tween('transitionState', transition, 'position', UDim2(0, 0, -0.25, 0), 1, 'easeOutCubic')
 def change_state_transition1(newState: str, skipTrans2: bool = False):
     transition.visible = True
     transition.resize(None, UDim2(1002/1000, 0, 844/562.5, 0))
@@ -62,8 +62,6 @@ def change_state_transition2(newState: str, skip_me: bool = False):
         transition.visible = False
         return
     transTween = Tween('transitionStateIn', transition, 'position', UDim2(0, 0, 1, 0), 1, 'easeOutCubic')
-    transition.position = UDim2(0, 0, -0.5, 0)
-    transition.flip(False, True)
     transTween.play()
     transTween.on_complete = lambda: None
 

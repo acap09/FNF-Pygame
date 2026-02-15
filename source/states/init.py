@@ -26,7 +26,7 @@ curFile = Path(__file__).resolve()
 #reg.add('States', curFile.stem, curFile)
 
 #font = pygame.font.Font(v.source_path / 'fonts' / 'fnf.ttf', 20)
-pat = cpath('fonts/boldtest.json').path
+pat = cpath('fonts/boldtest.json')
 font = BitmapFont('intr', pat, (25/563, 0))
 font.align = pygame.FONT_CENTER
 
